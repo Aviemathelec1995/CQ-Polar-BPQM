@@ -1351,7 +1351,7 @@ def polar_decoder_cq_sample_output_random_frozen_avg_error(dp,gp,number_samples,
 
     codeword=sample_codeword(info_set,frozen_bits)
 
-    encoded_bits=polar_transform(np.array(codeword))
+    encoded_bits=polar_transform(np.array(codeword,dtype=int64))
     q=sample_joint_random_state(l,v,v1,number_qubits,encoded_bits)
     h1,q1=polar_decoder_cq_output(yi,yd,q,number_qubits,info_set,dec_codeword)
     h=h+np.mod(h1+codeword,2)
@@ -1367,50 +1367,9 @@ def polar_decoder_cq_sample_output_random_frozen_avg_error(dp,gp,number_samples,
         for k in range(0,e+1):
             ber_den[k]=ber_den[k]+1
   return h/number_samples,block/number_samples,ber_num,ber_den
-# Setup parser
-parser = ap.ArgumentParser('Prints Block Error Rate for Length-16 CQ Polar')
-parser.add_argument('--verbose', '-v', help='Display text output', action="store_true")
-parser.add_argument('-d', dest='delta', type=float, default=0.05, help='Delta')
-parser.add_argument('-g', dest='gamma', type=float, default=0.15, help='gamma')
-parser.add_argument('-N', dest='num_qubits', type=int, default=8, help='Block Length')
-parser.add_argument('-n', dest='n', type=int, default=3, help='polar stages')
-parser.add_argument('-M', dest='M', type=int, default=100, help='Number of Blocks')
-parser.add_argument('-nde', dest='num_de_samples', type=int, default=100, help='Number of DE samples')
-parser.add_argument('-s','--seed', dest='seed', type=int, default=None, help='Seed for RNG')
 
-# parse arguments
-args = parser.parse_args()
 
-# Random seed to generate samples
-if (args.seed is None):
-    vars(args).update({"seed":int(time.time())%65536})
-
-# Instantiate arguments as local variables for simplicity
-locals().update(vars(args))
-#print(args)
-#print(delta)
-#print(gamma)
-
-# Simulation loop
-rng = np.random.RandomState(seed)
-
-#sys.exit()
-
-if num_qubits==4:
-    info_set=[0,0,1,1]
-    #frozen_val=[0,1]
-    num_frozen=2
-if num_qubits==8:
-    info_set=[0,0,1,0,0,0,0,1]
-    #frozen_val=[1,0,1,0]
-    num_frozen=6
-
-if num_qubits==16:
-    info_set=[0,0,0,0,0,0,0,1,0,1,1,1,1,1,1,1]
-   # frozen_val=[1,0,1,0,1,0,1,0]
-    num_frozen=8
 def main():
-  
   #dp=0.05
   #gp=0.15
   #n=3
@@ -1440,4 +1399,35 @@ def main():
   print('BER_DEN:',ber_den)
 
 if __name__ =="__main__":
-         main()
+  # Setup parser
+  parser = ap.ArgumentParser('Prints Block Error Rate for Length-16 CQ Polar')
+  parser.add_argument('--verbose', '-v', help='Display text output', action="store_true")
+  parser.add_argument('-d', dest='delta', type=float, default=0.05, help='Delta')
+  parser.add_argument('-g', dest='gamma', type=float, default=0.15, help='gamma')
+  parser.add_argument('-N', dest='num_qubits', type=int, default=8, help='Block Length')
+  parser.add_argument('-n', dest='n', type=int, default=3, help='polar stages')
+  parser.add_argument('-M', dest='M', type=int, default=100, help='Number of Blocks')
+  parser.add_argument('-nde', dest='num_de_samples', type=int, default=100, help='Number of DE samples')
+  parser.add_argument('-s','--seed', dest='seed', type=int, default=None, help='Seed for RNG')
+  # parse arguments
+  args = parser.parse_args()
+  # Random seed to generate samples
+  if (args.seed is None):
+    vars(args).update({"seed":int(time.time())%65536})
+  # Instantiate arguments as local variables for simplicity
+  locals().update(vars(args))
+  # Simulation loop
+  rng = np.random.RandomState(seed)
+  if num_qubits==4:
+    info_set=[0,0,1,1]
+    #frozen_val=[0,1]
+    num_frozen=2
+  if num_qubits==8:
+    info_set=[0,0,0,1,0,1,1,1]
+    #frozen_val=[1,0,1,0]
+    num_frozen=4
+  if num_qubits==16:
+    info_set=[0,0,0,0,0,0,0,1,0,1,1,1,1,1,1,1]
+   # frozen_val=[1,0,1,0,1,0,1,0]
+    num_frozen=8
+  main()
