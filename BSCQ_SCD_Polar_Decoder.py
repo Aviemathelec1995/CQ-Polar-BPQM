@@ -1351,7 +1351,7 @@ def polar_decoder_cq_sample_output_random_frozen_avg_error(dp,gp,number_samples,
 
     codeword=sample_codeword(info_set,frozen_bits)
 
-    encoded_bits=polar_transform(np.array(codeword,dtype=int64))
+    encoded_bits=polar_transform(np.array(codeword,dtype=np.int64))
     q=sample_joint_random_state(l,v,v1,number_qubits,encoded_bits)
     h1,q1=polar_decoder_cq_output(yi,yd,q,number_qubits,info_set,dec_codeword)
     h=h+np.mod(h1+codeword,2)
@@ -1369,7 +1369,7 @@ def polar_decoder_cq_sample_output_random_frozen_avg_error(dp,gp,number_samples,
   return h/number_samples,block/number_samples,ber_num,ber_den
 
 
-def main():
+def run():
   #dp=0.05
   #gp=0.15
   #n=3
@@ -1378,11 +1378,11 @@ def main():
   #num_qubits=2**n
   #info_set=[0,0,0,1,0,1,1,1]
   #num_frozen=4
+  print(f'Running lenth-{2**n} polar code over BSCQ with d={delta},g={gamma} ')
   d=np.ones(num_de_samples)*delta
   g=np.ones(num_de_samples)*gamma
   p=polar(n,d,g)
   D=[]
-  print(f'Results for lenth-{2**n} polar code over BSCQ with d={delta},g={gamma} ')
   #f=polar_design(ww,0.001)
   #print('rate for code with given design constraint:',np.mean(f==0.5))
   for i in range(2**n):
@@ -1400,22 +1400,23 @@ def main():
 
 if __name__ =="__main__":
   # Setup parser
-  parser = ap.ArgumentParser('Prints Block Error Rate for Length-16 CQ Polar')
+  parser = ap.ArgumentParser('Prints Block Error Rate for Length-2**n CQ Polar')
   parser.add_argument('--verbose', '-v', help='Display text output', action="store_true")
   parser.add_argument('-d', dest='delta', type=float, default=0.05, help='Delta')
   parser.add_argument('-g', dest='gamma', type=float, default=0.15, help='gamma')
-  parser.add_argument('-N', dest='num_qubits', type=int, default=8, help='Block Length')
   parser.add_argument('-n', dest='n', type=int, default=3, help='polar stages')
   parser.add_argument('-M', dest='M', type=int, default=100, help='Number of Blocks')
   parser.add_argument('-nde', dest='num_de_samples', type=int, default=100, help='Number of DE samples')
   parser.add_argument('-s','--seed', dest='seed', type=int, default=None, help='Seed for RNG')
   # parse arguments
   args = parser.parse_args()
+
   # Random seed to generate samples
   if (args.seed is None):
     vars(args).update({"seed":int(time.time())%65536})
   # Instantiate arguments as local variables for simplicity
   locals().update(vars(args))
+  num_qubits = 2**n
   # Simulation loop
   rng = np.random.RandomState(seed)
   if num_qubits==4:
@@ -1430,4 +1431,4 @@ if __name__ =="__main__":
     info_set=[0,0,0,0,0,0,0,1,0,1,1,1,1,1,1,1]
    # frozen_val=[1,0,1,0,1,0,1,0]
     num_frozen=8
-  main()
+  run()
