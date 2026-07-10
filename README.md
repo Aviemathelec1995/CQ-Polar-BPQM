@@ -40,6 +40,7 @@ The simulations in this repository focus on:
 | Path | Purpose |
 | --- | --- |
 | `BSCQ_SCD_Polar_Decoder.py` | Main script. It implements BSCQ state construction, PM-BPQM check-node and bit-node updates, polar density evolution, polar encoding, recursive CQ polar decoding, and Monte Carlo error-rate estimation. |
+| `BSCQ_SCD_Parameter_Sweep.py` | Parameter-sweep runner that reuses the main decoder, evaluates one or more `(delta, gamma)` channel settings, and writes descriptive JSON output for density-evolution and optional Monte Carlo decoder results. |
 | `BSCQ_SCD_Polar_Decoder.ipynb` | Notebook version of the BSCQ successive-cancellation polar decoder workflow. |
 | `polar_cq_decoder_random_codeword.ipynb` | Notebook for CQ polar-decoder simulations using randomly sampled codewords. |
 
@@ -93,6 +94,18 @@ Run a length-16 simulation:
 python BSCQ_SCD_Polar_Decoder.py -n 4 -M 1000 -nde 20000 -d 0.07 -g 0.10 -s 123
 ```
 
+Run a density-evolution-only parameter sweep and save JSON results:
+
+```bash
+python BSCQ_SCD_Parameter_Sweep.py -n 3 -nde 1000 --density-only --delta-values 0.03,0.05,0.07 --gamma-values 0.10,0.15 -s 123
+```
+
+Run the sweep with decoder Monte Carlo samples:
+
+```bash
+python BSCQ_SCD_Parameter_Sweep.py -n 3 -M 100 -nde 1000 --delta-values 0.05,0.07 --gamma-values 0.10,0.15 -s 123
+```
+
 ## Usage
 
 The main script accepts:
@@ -114,6 +127,16 @@ python BSCQ_SCD_Polar_Decoder.py -d 0.05 -g 0.15 -n 3 -M 500 -nde 5000 -s 7
 
 The script currently has built-in information sets for block lengths `N = 4`, `N = 8`, and `N = 16`.
 
+The parameter-sweep script accepts the same `-d`, `-g`, `-n`, `-M`, `-nde`, and `-s` arguments. It also accepts:
+
+```text
+--delta-values    comma-separated delta values for a sweep
+--gamma-values    comma-separated gamma values for a sweep
+--density-only    run density evolution without Monte Carlo decoder samples
+--output-dir      directory for JSON output
+--output-file     JSON output file name
+```
+
 ## Generated Outputs
 
 The command-line script prints:
@@ -124,6 +147,8 @@ The command-line script prints:
 * `BER_NUM` and `BER_DEN`, which can be used to estimate first-error-location rates.
 
 The script does not write output files by default.
+
+`BSCQ_SCD_Parameter_Sweep.py` writes a JSON payload under `results/` by default. Each result records the channel parameters, block length, seed, information set, density-evolution error estimates, and, unless `--density-only` is used, simulated channel-error, block-error, `BER_NUM`, and `BER_DEN` values.
 
 ## Notes
 
